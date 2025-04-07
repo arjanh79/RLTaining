@@ -6,7 +6,7 @@ class Landscape:
 
     def __init__(self):
         self.peaks = [
-            (1.5, 4, 4, 0.05),
+            (1.75, 4, 4, 0.05),
             (2.5, -8, 6, 0.04),
             (2.0, -5, -5, 0.04)
         ]
@@ -16,7 +16,7 @@ class Landscape:
             z = torch.zeros_like(x)
             for amplitude, center_x, center_y, sharpness in self.peaks:
                 z += amplitude * torch.exp(-sharpness * ((x - center_x) ** 2 + (y - center_y) ** 2))
-            z -= 0.03 * torch.sqrt(x ** 2 + y ** 2 + 1e-6)
+            z -= 0.00 * torch.sqrt(x ** 2 + y ** 2 + 1e-6)
             return z
 
         return landscape_fn
@@ -32,7 +32,7 @@ class Environment:
         self.x = torch.tensor(start_x, dtype=torch.float32, requires_grad=True)
         self.y = torch.tensor(start_y, dtype=torch.float32, requires_grad=True)
 
-        self.momentum = torch.tensor([0.0, 0.0], dtype=torch.float32, requires_grad=True)
+        self.momentum = torch.tensor([0.0, 0.0], dtype=torch.float32).detach()
 
         self.steps = []
 
@@ -79,7 +79,8 @@ class Environment:
     def run(self, num_steps=50):
         for _ in range(num_steps):
             self.get_step()
-        PlotEnvironment(self.get_results()).plot_mountain()
+        PlotEnvironment(self.get_results()).plot_mountain('mountain_free')
+        PlotEnvironment(self.get_results()).plot_mountain_2d('mountain_free')
 
 
 class PlotEnvironment:
@@ -88,8 +89,8 @@ class PlotEnvironment:
         self.landscape_fn = Landscape().generate_landscape()
         self.steps = steps
 
-    def plot_mountain(self):
-
+    def plot_mountain(self, name):
+        name += '_3d.png'
         steps = np.array(self.steps)
 
         x = torch.linspace(-15, 15, 200)
@@ -108,8 +109,32 @@ class PlotEnvironment:
         ax.set_zlabel('Z')
 
         plt.tight_layout()
-        plt.savefig('mountain.png')
+        plt.savefig(name)
 
     def get_altitude_plot(self, x, y):
         return self.landscape_fn(x, y)
 
+    def plot_mountain_2d(self, name):
+        name += '_2d.png'
+
+        steps = np.array(self.steps)
+
+        x = torch.linspace(-15, 15, 200)
+        y = torch.linspace(-15, 15, 200)
+        x, y = torch.meshgrid(x, y, indexing='ij')
+        z = self.get_altitude_plot(x, y)  # Altitude of the mountains
+
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111)
+        ax.contourf(x, y, z, levels=50, cmap='terrain')
+        ax.plot(steps[:, 0], steps[:, 1], color='red', linewidth=1, zorder=10)
+        ax.scatter(steps[:, 0], steps[:, 1], color='black', s=20, zorder=11)
+        ax.scatter(x=5, y=5, color='red', s=30, zorder=12)
+
+
+        plt.tight_layout()
+        plt.savefig(name)
+
+
+if __name__ == '__main__':
+    Environment(-5, -2.5).run(num_steps=75)
