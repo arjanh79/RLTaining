@@ -26,7 +26,7 @@ class Environment:
 
     def __init__(self, start_x, start_y):
         self.beta = 0.95
-        self.gravity = 1
+        self.gravity = 1.1
         self.landscape_fn = Landscape().generate_landscape()
 
         self.x = torch.tensor(start_x, dtype=torch.float32, requires_grad=True)
@@ -68,6 +68,9 @@ class Environment:
 
         x = (self.x - self.momentum[0]).detach().requires_grad_()
         y = (self.y - self.momentum[1]).detach().requires_grad_()
+
+        if (x > 15) or (y > 15):
+            return
 
         self.steps.append([x.item(), y.item(), z.item()])
         self.x = x
