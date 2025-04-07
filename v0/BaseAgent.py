@@ -35,7 +35,8 @@ class BaseAgent(Environment):
         diff_angle = self.diff_angle_rad(current_angle, target_angle)
         diff_angle = self.normalize_angle(diff_angle)
         diff_angle = np.clip(diff_angle, -0.5, 0.5)
-        # print(f'Before: {direction}')
+        if np.abs(diff_angle) <  0.5:
+            magnitude += 1
 
         direction = self.normalize_angle(direction + diff_angle)
         # print(f'After: {direction} {target_angle}')

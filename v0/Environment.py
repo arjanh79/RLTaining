@@ -6,7 +6,7 @@ class Landscape:
 
     def __init__(self):
         self.peaks = [
-            (1.75, 4, 4, 0.05),
+            (0.75, 4, 4, 0.05),
             (2.5, -8, 6, 0.04),
             (2.0, -5, -5, 0.04)
         ]
@@ -16,7 +16,7 @@ class Landscape:
             z = torch.zeros_like(x)
             for amplitude, center_x, center_y, sharpness in self.peaks:
                 z += amplitude * torch.exp(-sharpness * ((x - center_x) ** 2 + (y - center_y) ** 2))
-            z -= 0.00 * torch.sqrt(x ** 2 + y ** 2 + 1e-6)
+            z -= 0.01 * torch.sqrt(x ** 2 + y ** 2 + 1e-6)
             return z
 
         return landscape_fn
