@@ -59,7 +59,7 @@ class BaseAgent(Environment):
         self.y = y
 
 
-ba = BaseAgent(-5, -2.5)
+ba = BaseAgent(-7.5, 4.5)
 for _ in range(100):
     ba.get_step()
 PlotEnvironment(ba.get_results()).plot_mountain('mountain_steer')
