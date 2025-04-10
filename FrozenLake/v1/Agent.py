@@ -53,5 +53,6 @@ class Agent:
         result = []
         for _ in range(num_games):
             result.append(int(self.play_single_game()))
+            self.reset_agent()
         result = [(i + 1) // 2 for i in result]
         print(f'Win: {(sum(result) / num_games) * 100}%')
